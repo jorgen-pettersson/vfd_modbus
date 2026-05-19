@@ -1,41 +1,29 @@
 from pymodbus.server import StartSerialServer
-from pymodbus.datastore import (
-    ModbusSequentialDataBlock,
-    ModbusDeviceContext,
-    ModbusServerContext,
-)
+from pymodbus.simulator import SimData, SimDevice, DataType
 
 DEVICE_ID = 2
-SERIAL_PORT = "/dev/serial0"   # or /dev/serial0, depending on your Pi/HAT
+#SERIAL_PORT = "/dev/serial0"   # or /dev/serial0, depending on your Pi/HAT
+SERIAL_PORT = "/dev/ttyUSB0" 
 
 def main():
     print("Starting IO module PoC...")
-    #
-    # Data areas:
-    # di = discrete inputs   read_discrete_inputs()
-    # co = coils             read_coils() / write_coil()
-    # hr = holding registers read/write registers
-    # ir = input registers   read input registers
-    device_context = ModbusDeviceContext(
-        di=ModbusSequentialDataBlock(0, [0] * 100),
-        co=ModbusSequentialDataBlock(0, [0] * 100),
-        hr=ModbusSequentialDataBlock(0, [0] * 100),
-        ir=ModbusSequentialDataBlock(0, [0] * 100),
+
+    # Non-shared Modbus model:
+    # tuple order = coils, discrete inputs, holding registers, input registers
+    device = SimDevice(
+        id=DEVICE_ID,
+        simdata=(
+            [SimData(address=0, count=100, values=False, datatype=DataType.BITS)],      # coils
+            [SimData(address=0, count=100, values=False, datatype=DataType.BITS)],      # discrete inputs
+            [SimData(address=0, count=100, values=0, datatype=DataType.REGISTERS)],     # holding registers
+            [SimData(address=0, count=100, values=0, datatype=DataType.REGISTERS)],     # input registers
+        ),
     )
 
-    context = ModbusServerContext(
-        devices={DEVICE_ID: device_context},
-        single=False,
-    )
-
-    # Example initial fake input states
-    # DI_01 = True, DI_02 = False, DI_03 = True
-    device_context.setValues(2, 0, [1, 0, 1, 0, 0, 0, 0, 0])
-
-    print(f"Starting fake Modbus RTU slave on {SERIAL_PORT}, device_id={DEVICE_ID}")
+    print(f"Starting fake Modbus RTU slave id={DEVICE_ID} on {SERIAL_PORT}")
 
     StartSerialServer(
-        context=context,
+        context=device,
         port=SERIAL_PORT,
         baudrate=9600,
         parity="N",
