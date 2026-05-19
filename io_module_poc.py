@@ -47,8 +47,8 @@ def main():
     worker_thread.start()
     print("worker thread started")
 
-    set_output(SLAVE_ID,0, True)
-    print("DO_01 ON via command queue")
+    #set_output(SLAVE_ID,0, True)
+    #print("DO_01 ON via command queue")
 
     monitor_inputs(target=callback_on_input_change)
 

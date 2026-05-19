@@ -1,29 +1,38 @@
 from pymodbus.server import StartSerialServer
-from pymodbus.simulator import SimData, SimDevice, DataType
+from pymodbus.datastore import (
+    ModbusSequentialDataBlock,
+    ModbusDeviceContext,
+    ModbusServerContext,
+)
 
 DEVICE_ID = 2
-#SERIAL_PORT = "/dev/serial0"   # or /dev/serial0, depending on your Pi/HAT
-SERIAL_PORT = "/dev/ttyUSB0" 
+SERIAL_PORT = "/dev/serial0"   # or /dev/serial0, depending on your Pi/HAT
+#SERIAL_PORT = "/dev/ttyUSB0" 
 
 def main():
     print("Starting IO module PoC...")
 
-    # Non-shared Modbus model:
-    # tuple order = coils, discrete inputs, holding registers, input registers
-    device = SimDevice(
-        id=DEVICE_ID,
-        simdata=(
-            [SimData(address=0, count=100, values=False, datatype=DataType.BITS)],      # coils
-            [SimData(address=0, count=100, values=False, datatype=DataType.BITS)],      # discrete inputs
-            [SimData(address=0, count=100, values=0, datatype=DataType.REGISTERS)],     # holding registers
-            [SimData(address=0, count=100, values=0, datatype=DataType.REGISTERS)],     # input registers
-        ),
+    di_block = ModbusSequentialDataBlock(1, [1, 0, 1, 0, 0, 0, 0, 0] + [0] * 92)
+    co_block = ModbusSequentialDataBlock(1, [0] * 100)
+    hr_block = ModbusSequentialDataBlock(1, [0] * 100)
+    ir_block = ModbusSequentialDataBlock(1, [0] * 100)
+
+    device_context = ModbusDeviceContext(
+        di=di_block,
+        co=co_block,
+        hr=hr_block,
+        ir=ir_block,
     )
 
-    print(f"Starting fake Modbus RTU slave id={DEVICE_ID} on {SERIAL_PORT}")
+    context = ModbusServerContext(
+        devices={DEVICE_ID: device_context},
+        single=False,
+    )
+
+    print(f"Starting fake slave device_id={DEVICE_ID} on {SERIAL_PORT}")
 
     StartSerialServer(
-        context=device,
+        context=context,
         port=SERIAL_PORT,
         baudrate=9600,
         parity="N",
