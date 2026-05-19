@@ -6,4 +6,5 @@ readme = "README.md"
 requires-python = ">=3.15"
 dependencies = [
     "pymodbus>=3.13.0",
+    "pyserial>=3.5",
 ]
