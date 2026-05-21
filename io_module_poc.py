@@ -4,7 +4,6 @@ from pymodbus.client import ModbusSerialClient
 import time
 from command_queue import set_output, get_inputs,modbus_worker
 
-
 def callback_on_input_change(inputs):
     print("Input changed: "+str(inputs))
 

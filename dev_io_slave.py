@@ -4,7 +4,7 @@ from pymodbus.datastore import (
     ModbusDeviceContext,
     ModbusServerContext,
 )
-
+# some internal imports for testing
 DEVICE_ID = 2
 SERIAL_PORT = "/dev/serial0"   # or /dev/serial0, depending on your Pi/HAT
 #SERIAL_PORT = "/dev/ttyUSB0" 
