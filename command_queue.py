@@ -8,7 +8,8 @@ latest_inputs = {}
 latest_lock = threading.Lock()
 
 devices = [
-    {"name": "io_1", "device_id": 1, "type": "wp8028","noOfInputs":8}
+    {"name": "io_1", "device_id": 1, "type": "wp8028","noOfInputs":8},
+    {"name": "io_1_dev", "device_id": 2, "type": "wp8028","noOfInputs":8}
 ]
 
 def modbus_worker(client):
@@ -35,7 +36,7 @@ def modbus_worker(client):
                     device_id=device["device_id"]
                 )
 
-                if not result.isError():
+                if not result.isError():    
                     latest_inputs[device["name"]] = result.bits[:8]
 
 
